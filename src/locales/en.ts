@@ -23,9 +23,15 @@ export default {
     imagePreviewAlt: 'Preview',
     helperStart: 'To begin, choose',
     helperOr: 'or',
+    textLimit: '{count}/{max} characters',
+    imageLimit: 'Allowed: {formats} up to {maxSizeMb} MB',
     growButton: 'Grow it! 🪷',
     growingButton: 'Growing... 🪷',
     plantButton: 'Plant it! 🪷',
+    errors: {
+      invalidImageType: 'Invalid image format. Please use {formats}.',
+      imageTooLarge: 'Image is too large. Maximum file size is {maxSizeMb} MB.',
+    },
     idle: {
       title: 'Grow a waterlily from your data',
       condensedMeaning: '"condensed meaning"',

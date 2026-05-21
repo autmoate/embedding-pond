@@ -43,10 +43,14 @@
               v-if="mode === 'text'"
               v-model="textInput"
               :placeholder="t('creator.placeholder')"
+              :maxlength="TEXT_MAX_CHARS"
               rows="6"
             ></textarea>
+            <p v-if="mode === 'text'" class="input-meta">{{ t('creator.textLimit', { count: textLength, max: TEXT_MAX_CHARS }) }}</p>
             <div v-else class="image-input">
-              <input type="file" accept="image/*" @change="handleImage" />
+              <input type="file" accept=".jpg,.jpeg,.png,image/jpeg,image/png" @change="handleImage" />
+              <p class="input-meta">{{ t('creator.imageLimit', { maxSizeMb: IMAGE_MAX_SIZE_MB, formats: ALLOWED_IMAGE_EXTENSIONS_LABEL }) }}</p>
+              <p v-if="inputError" class="input-error" role="alert">{{ inputError }}</p>
               <div v-if="imagePreview" class="preview">
                 <img :src="imagePreview" :alt="t('creator.imagePreviewAlt')" />
               </div>
@@ -117,7 +121,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import IconButton from './IconButton.vue'
 import { createLilyPadPaths } from '../utils/lilyPad'
@@ -150,6 +154,13 @@ const mode = ref<'text' | 'image'>('text')
 const textInput = ref('')
 const imageData = ref('')
 const imagePreview = ref('')
+const inputError = ref('')
+
+const TEXT_MAX_CHARS = 280
+const IMAGE_MAX_SIZE_MB = 3
+const IMAGE_MAX_BYTES = IMAGE_MAX_SIZE_MB * 1024 * 1024
+const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png'])
+const ALLOWED_IMAGE_EXTENSIONS_LABEL = 'JPG, JPEG, PNG'
 
 type Phase = 'idle' | 'embedding' | 'ready'
 const phase = ref<Phase>('idle')
@@ -164,6 +175,8 @@ const showStatusDelayMs = computed(() => (isFirstLily.value ? 260 : 120))
 
 const streamRunId = ref(0)
 const streamValues = ref<string[]>([])
+
+const textLength = computed(() => textInput.value.trim().length)
 
 const canGrow = computed(() => {
   if (mode.value === 'text') return textInput.value.trim().length > 0
@@ -233,9 +246,36 @@ const handleImage = (event: Event) => {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
   if (!file) return
+  inputError.value = ''
+
+  if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+    resetImageInput(target)
+    inputError.value = t('creator.errors.invalidImageType', { formats: ALLOWED_IMAGE_EXTENSIONS_LABEL })
+    return
+  }
+
+  if (file.size > IMAGE_MAX_BYTES) {
+    resetImageInput(target)
+    inputError.value = t('creator.errors.imageTooLarge', { maxSizeMb: IMAGE_MAX_SIZE_MB })
+    return
+  }
+
+  revokeObjectUrl(imageData.value)
   const objectUrl = URL.createObjectURL(file)
   imageData.value = objectUrl
   imagePreview.value = objectUrl
+}
+
+const resetImageInput = (target: HTMLInputElement) => {
+  revokeObjectUrl(imageData.value)
+  imageData.value = ''
+  imagePreview.value = ''
+  target.value = ''
+}
+
+const revokeObjectUrl = (url: string) => {
+  if (!url) return
+  URL.revokeObjectURL(url)
 }
 
 const primaryButtonLabel = computed(() => {
@@ -303,5 +343,25 @@ watch(
     }
   }
 )
+
+watch(
+  () => mode.value,
+  () => {
+    inputError.value = ''
+  }
+)
+
+watch(
+  () => textInput.value,
+  (value) => {
+    if (value.length > TEXT_MAX_CHARS) {
+      textInput.value = value.slice(0, TEXT_MAX_CHARS)
+    }
+  }
+)
+
+onBeforeUnmount(() => {
+  revokeObjectUrl(imageData.value)
+})
 
 </script>

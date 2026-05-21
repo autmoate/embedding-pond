@@ -1082,6 +1082,19 @@ button {
   margin-bottom: 12px;
 }
 
+.input-meta {
+  margin: 2px 0 10px;
+  font-size: 0.84rem;
+  color: rgba(10, 45, 65, 0.72);
+}
+
+.input-error {
+  margin: 0 0 12px;
+  color: #8a1f1f;
+  font-weight: 600;
+  font-size: 0.88rem;
+}
+
 .image-input .preview {
   display: grid;
   place-items: center;

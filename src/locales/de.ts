@@ -23,9 +23,15 @@ export default {
     imagePreviewAlt: 'Vorschau',
     helperStart: 'Zum Start wähle',
     helperOr: 'oder',
+    textLimit: '{count}/{max} Zeichen',
+    imageLimit: 'Erlaubt: {formats} bis {maxSizeMb} MB',
     growButton: 'Wachsen lassen! 🪷',
     growingButton: 'Wächst ... 🪷',
     plantButton: 'Einpflanzen! 🪷',
+    errors: {
+      invalidImageType: 'Ungültiges Bildformat. Bitte nutze {formats}.',
+      imageTooLarge: 'Das Bild ist zu groß. Maximale Dateigröße: {maxSizeMb} MB.',
+    },
     idle: {
       title: 'Lass aus deinen Daten eine Seerose wachsen',
       condensedMeaning: 'Liste aus Zahlen, die die Bedeutung deiner Daten beinhaltet',

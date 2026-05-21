@@ -32,8 +32,18 @@ Then open the Vite dev server URL (usually `http://localhost:5173`).
 
 - Embeddings are computed client-side via `@huggingface/transformers` using `Xenova/clip-vit-base-patch32`.
 - PCA is computed client-side with `ml-pca`.
+- Input hardening:
+  - text input is capped at 280 characters,
+  - image input only accepts `jpg/jpeg/png`,
+  - image file size is limited to 3 MB.
 - This is a prototype UI: no backend, no persistence (refresh clears lilies), no auth.
 - Water background uses a tileable image: `public/water_tileable.jpg`.
+
+## Deployment Notes
+
+- The production Docker image builds static assets (`npm run build`) and serves them via Nginx.
+- Security headers (including CSP, frame restrictions, and content type hardening) are set in `nginx/default.conf`.
+- Inputs stay browser-local: uploaded images are represented as object URLs and are not sent to a backend by this app.
 
 ## Project Structure
 
